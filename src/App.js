@@ -1,39 +1,55 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
+
+// 게시글 데이터 객체
+function Post(title, content, date) {
+  this.title = title;
+  this.content = content;
+  this.date = date;
+  this.like = 0;
+}
 
 // 메인 컴포넌트 모듈 (index.js에서 import해서 쓰임)
 function App() {
   // 더미 데이터
-  let posts = [
-    new Post("가을 여행지 추천", new Date(2021, 10, 10)),
-    new Post("최고당 돈가스 후기", new Date(2021, 10, 9)),
-    new Post("강아지 카페 추천", new Date(2021, 10, 8)),
-    new Post("프론트엔드 면접 질문 모음", new Date(2021, 10, 7)),
-    new Post("리액트 마스터 로드맵", new Date(2021, 10, 6)),
+  let postRawData = [
+    new Post(
+      "가을 여행지 추천",
+      "어디로든~ 떠나고 싶어~",
+      new Date(2021, 9, 10)
+    ),
+    new Post(
+      "최고당 돈가스 후기",
+      "음 역시 돈가스는 옳아",
+      new Date(2021, 9, 9)
+    ),
+    new Post(
+      "반려동물 유튜브 채널 추천",
+      "너를 본 순간 내 심장은 멈췄다.. 너의 이름.. 백.재.롱",
+      new Date(2021, 9, 8)
+    ),
+    new Post(
+      "프론트엔드 면접 질문 모음",
+      "호이스팅이란?",
+      new Date(2021, 9, 7)
+    ),
+    new Post(
+      "리액트 마스터 로드맵",
+      "1. 코딩애플의 강의를 듣는다. 2. 간절히 기도한다.",
+      new Date(2021, 9, 6)
+    ),
   ];
 
   // state
-  let [postData, changePost] = useState(posts);
+  let [posts, setPostList] = useState(postRawData);
   let [displayModal, changeModalDisplay] = useState(false);
   let [showPostIdx, changeShowPost] = useState(0);
-  let [inputData, setInputData] = useState("");
-
-  // 게시글 제목 변경
-  function changeTitle() {
-    let data = [...postData];
-    data[0].title = "여자 코트 추천";
-    changePost(data);
-  }
 
   // 게시글 별 좋아요 수 증가
-  //+ 게시글 갯수랑 같은 배열로 state 만들어서 index 참조해서 써도 될듯
-  function changeLike(e, idx) {
-    let data = [...postData];
-    let target = { ...e };
-    target.like++;
-
-    data[idx] = target;
-    changePost(data);
+  function addLikeCount(i) {
+    let data = [...posts];
+    data[i].like++;
+    setPostList(data);
   }
 
   // 클릭한 게시글 모달 띄우기
@@ -49,37 +65,11 @@ function App() {
       </div>
       <div className="content">
         {/* 입력 */}
-        <div className="input-form">
-          <input
-            type="text"
-            onChange={(e) => {
-              setInputData(e.target.value);
-            }}
-          />
-          <button
-            onClick={() => {
-              let data = [...postData];
-              data.unshift(new Post(inputData, new Date(Date.now())));
-              changePost(data);
-            }}
-          >
-            저장
-          </button>
-        </div>
-
-        {/* 공부용 버튼 */}
-        {/* <button onClick={changeTitle}>제목 바꾸기</button>
-        <button
-          onClick={() => {
-            changeModalDisplay(!displayModal);
-          }}
-        >
-          모달 토글
-        </button> */}
+        <WritePostForm posts={posts} setPostList={setPostList}></WritePostForm>
 
         {/* 게시글 */}
         <ul>
-          {postData.map((e, i) => {
+          {posts.map((post, i) => {
             return (
               <li className="post" key={i}>
                 <h4
@@ -88,55 +78,132 @@ function App() {
                     showPost(i);
                   }}
                 >
-                  {e.title}
+                  {post.title}
                   <span
-                    onClick={(evt) => {
-                      changeLike(e, i);
-                      evt.stopPropagation();
+                    className="like"
+                    onClick={(event) => {
+                      addLikeCount(i);
+                      event.stopPropagation();
                     }}
                   >
                     👍
                   </span>
-                  {e.like}
+                  {post.like}
                 </h4>
-                <p>{getDateString(e.date)}</p>
+                <p>{getDateString(post.date)}</p>
               </li>
             );
           })}
         </ul>
 
-        {/* 모달창 */}
+        {/* 게시물 모달 */}
         {displayModal ? (
-          <Modal post={postData} showPostIdx={showPostIdx}></Modal>
+          <PostModal
+            onClickClose={() => {
+              changeModalDisplay(false);
+            }}
+            onClickLike={addLikeCount}
+            post={posts[showPostIdx]}
+            selectPostIdx={showPostIdx}
+          ></PostModal>
         ) : null}
+
+        {/* 모달창 - 강의 */}
+        {/* {displayModal ? (
+          <Modal post={posts} showPostIdx={showPostIdx}></Modal>
+        ) : null} */}
       </div>
     </div>
   );
 }
 
-// 모달창 컴포넌트
-function Modal(props) {
-  let post = props.post[props.showPostIdx];
-  console.log(post);
+// 글 작성 폼 컴포넌트
+function WritePostForm(props) {
+  let titleRef = useRef();
+  let contentRef = useRef();
+
+  function post() {
+    const title = titleRef.current.value.trim();
+    const content = contentRef.current.value.trim();
+
+    if (!title || !content) {
+      alert("내용을 채워주세요.");
+      return;
+    }
+
+    let data = [...props.posts];
+    data.unshift(new Post(title, content, new Date(Date.now())));
+    props.setPostList(data);
+
+    titleRef.current.value = "";
+    contentRef.current.value = "";
+
+    alert("게시물이 등록되었습니다.");
+  }
+
   return (
-    <div className="modal">
-      <h3 className="title">{post.title}</h3>
-      <p>{getDateString(post.date)}</p>
-      <p>내용</p>
+    <div className="post-form">
+      <h2 className="heading">글 작성</h2>
+      <div className="post-form__title">
+        <label htmlFor="titleInput">제목</label>
+        <input
+          id="titleInput"
+          className="title-input"
+          type="text"
+          ref={titleRef}
+        />
+      </div>
+      <div className="post-form__content">
+        <label htmlFor="contentInput">내용</label>
+        <textarea
+          id="contentInput"
+          className="content-input"
+          ref={contentRef}
+        ></textarea>
+      </div>
+      <button onClick={post}>저장</button>
     </div>
   );
 }
 
-// 게시글 데이터 객체
-function Post(title, date) {
-  this.title = title;
-  this.date = date;
-  this.like = 0;
+// 게시물 보기 모달 컴포넌트
+function PostModal(props) {
+  const post = props.post;
+
+  function onClickLike() {
+    props.onClickLike(props.selectPostIdx);
+  }
+
+  return (
+    <div className="post-modal">
+      <article className="post-inner">
+        <h1 className="post__title">{post.title}</h1>
+        <p className="post__info">
+          {getDateString(post.date)} | <span onClick={onClickLike}>👍</span>{" "}
+          {post.like}
+        </p>
+        <section className="post__content">{post.content}</section>
+        <button onClick={props.onClickClose}>닫기</button>
+      </article>
+    </div>
+  );
 }
+
+// 모달창 컴포넌트
+// function Modal(props) {
+//   let post = props.post[props.showPostIdx];
+//   return (
+//     <div className="modal">
+//       <h3 className="title">{post.title}</h3>
+//       <p>{getDateString(post.date)}</p>
+//       <p>내용</p>
+//     </div>
+//   );
+// }
 
 // 날짜 표기
 function getDateString(d) {
-  let month = d.getMonth() === 0 ? 12 : d.getMonth();
+  let month = d.getMonth() + 1;
   let date = d.getDate();
   return `${month}월 ${date}일 발행`;
 }

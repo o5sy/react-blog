@@ -146,10 +146,6 @@ button {
   cursor: pointer;
 }
 
-.App {
-  width: 100vw;
-}
-
 .black-nav {
   background: black;
   display: flex;
@@ -176,6 +172,10 @@ button {
   margin-bottom: 8px;
 }
 
+.post .like {
+  margin: 0 6px;
+}
+
 .modal {
   width: 100%;
   padding: 20px;
@@ -188,19 +188,103 @@ button {
   font-weight: bold;
 }
 
-.input-form {
-  width: 100%;
-  height: 32px;
+.post-form {
   display: flex;
+  flex-direction: column;
   align-content: stretch;
   margin: 20px 0;
+  background-color: #ececec;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.input-form > input {
+.post-form .heading {
+  font-size: 18px;
+  margin-bottom: 14px;
+  font-weight: bold;
+}
+
+.post-form__title {
+  display: flex;
+}
+
+.post-form__title .title-input {
+  height: 36px;
   flex: 1;
-  padding: 0;
-  box-sizing: border-box;
-  border: 1px solid gray;
+  padding: 2px 6px;
+  border: none;
   border-radius: 4px;
-  margin-right: 20px;
+  font-size: 18px;
+}
+
+.post-form__content {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.post-form__content .content-input {
+  flex: 1;
+  height: 100px;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  line-height: 24px;
+  padding: 2px 6px;
+  resize: none;
+}
+
+.post-form label {
+  margin-right: 12px;
+  line-height: 30px;
+}
+
+.post-form > button {
+  height: 30px;
+  width: 50px;
+  align-self: flex-end;
+  border-radius: 4px;
+}
+
+.post-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.post-modal .post-inner {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 500px;
+  background-color: #eee;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.post-modal .post__title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.post-modal .post__info {
+  font-size: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid gray;
+  margin-bottom: 20px;
+}
+
+.post-modal .post__content {
+  flex: 1;
+  font-size: 16px;
+  overflow: auto;
 }
